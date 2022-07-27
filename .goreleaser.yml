@@ -53,8 +53,6 @@ builds:
         goarch: arm64
       - goos: windows
         goarm: "7"
-    hooks:
-      post: upx -9 "{{ .Path }}"
 
 archives:
   - 
