@@ -6,18 +6,26 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jon4hz/flipperzero-tea/flipperzero"
+	"github.com/muesli/coral"
 )
 
-type model struct {
-	flipper tea.Model
+var rootFlags struct {
+	port string
 }
 
-func main() {
-	var port string
-	if len(os.Args) > 1 {
-		port = os.Args[1]
-	}
-	fz, err := flipperzero.NewFlipperZero(flipperzero.WithPort(port))
+var rootCmd = &coral.Command{
+	Use:   "flipperzero-tea",
+	Short: "TUI to interact with your flipper zero",
+	Run:   root,
+}
+
+func init() {
+	rootCmd.Flags().StringVarP(&rootFlags.port, "port", "p", "", "port to connect to")
+	rootCmd.AddCommand(serverCmd)
+}
+
+func root(cmd *coral.Command, args []string) {
+	fz, err := flipperzero.NewFlipperZero(flipperzero.WithPort(rootFlags.port))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,23 +37,8 @@ func main() {
 	}
 }
 
-func (m model) Init() tea.Cmd {
-	return m.flipper.Init()
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
-			return m, tea.Quit
-		}
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
 	}
-	var cmd tea.Cmd
-	m.flipper, cmd = m.flipper.Update(msg)
-	return m, cmd
-}
-
-func (m model) View() string {
-	return m.flipper.View()
 }

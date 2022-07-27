@@ -55,7 +55,6 @@ func NewFlipperZero(opts ...Opts) (*FlipperZero, error) {
 		return nil, fmt.Errorf("could not connect to flipper: %w", err)
 	}
 	f.Flipper = fz
-
 	return f, nil
 }
 

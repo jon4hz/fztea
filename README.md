@@ -1,6 +1,6 @@
 # 🐬🧋 FlipperZero-Tea
 
-A bubbletea-bubble and TUI to interact with your flipper zero.  
+A [bubbletea](https://github.com/charmbracelet/bubbletea)-bubble and TUI to interact with your flipper zero.  
 The flipper will be automatically detected, if multiple flippers are connected, the first one will be used.
 
 ## 🚀 Installation
@@ -14,5 +14,16 @@ go install github.com/jon4hz/flipperzero-tea@latest
 $ flipperzero-tea
 
 # no flipper found automatically :(
-$ flipperzero-tea /dev/ttyACM0
+$ flipperzero-tea -p /dev/ttyACM0
+```
+
+## ⚡️ SSH
+Flipperzero-tea also allows you to start an ssh server, serving the flipper zero ui over a remote connection.  
+Why? - Why not!
+```bash
+# start the ssh server listening on localhost:2222 (default)
+$ flipperzero-tea server -l 127.0.0.1:2222
+
+# connect to the server (from the same machine)
+$ ssh localhost -p 2222
 ```
