@@ -7,8 +7,25 @@ A [bubbletea](https://github.com/charmbracelet/bubbletea)-bubble and TUI to inte
 The flipper will be automatically detected, if multiple flippers are connected, the first one will be used.
 
 ## 🚀 Installation
-```
-go install github.com/jon4hz/flipperzero-tea@latest
+```bash
+# using go directly
+$ go install github.com/jon4hz/flipperzero-tea@latest
+
+# from aur (btw)
+$ yay -S flipperzero-tea-bin
+
+# local pkg manager
+## debian / ubuntu
+dpkg -i flipperzero-tea-v0.1.0-linux-amd64.deb
+
+## rhel / fedora / suse
+rpm -i flipperzero-tea-v0.1.0-linux-amd64.rpm
+
+## alpine
+apk add --allow-untrusted flipperzero-tea-v0.1.0-linux-amd64.apk
+
+# windows & macOS
+# -> I'm sure you'll figure something out. (No binaries for macOS due to crosscompilation errors)
 ```
 
 ## ✨ Usage
