@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jon4hz/flipperzero-tea/flipperzero"
@@ -12,7 +13,11 @@ type model struct {
 }
 
 func main() {
-	fz, err := flipperzero.NewFlipperZero()
+	var port string
+	if len(os.Args) > 1 {
+		port = os.Args[1]
+	}
+	fz, err := flipperzero.NewFlipperZero(flipperzero.WithPort(port))
 	if err != nil {
 		log.Fatal(err)
 	}
