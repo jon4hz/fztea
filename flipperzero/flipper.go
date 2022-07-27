@@ -33,7 +33,7 @@ type Model struct {
 func New(fz *FlipperZero) tea.Model {
 	m := &Model{
 		Style:   lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
-		updates: make(chan string, 64),
+		updates: make(chan string),
 		fz:      fz,
 	}
 
@@ -116,7 +116,9 @@ func (m Model) updateScreen(frame flipper.ScreenFrame) {
 		s.WriteString(l.String())
 		s.WriteByte('\n')
 	}
-	m.updates <- s.String()
+	go func() {
+		m.updates <- s.String()
+	}()
 }
 
 func listenScreenUpdate(u <-chan string) tea.Cmd {
