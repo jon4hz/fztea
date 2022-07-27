@@ -16,13 +16,13 @@ $ yay -S flipperzero-tea-bin
 
 # local pkg manager
 ## debian / ubuntu
-dpkg -i flipperzero-tea-v0.1.0-linux-amd64.deb
+$ dpkg -i flipperzero-tea-v0.1.0-linux-amd64.deb
 
 ## rhel / fedora / suse
-rpm -i flipperzero-tea-v0.1.0-linux-amd64.rpm
+$ rpm -i flipperzero-tea-v0.1.0-linux-amd64.rpm
 
 ## alpine
-apk add --allow-untrusted flipperzero-tea-v0.1.0-linux-amd64.apk
+$ apk add --allow-untrusted flipperzero-tea-v0.1.0-linux-amd64.apk
 
 # windows & macOS
 # -> I'm sure you'll figure something out. (No binaries for macOS due to crosscompilation errors)
@@ -47,3 +47,4 @@ $ flipperzero-tea server -l 127.0.0.1:2222
 # connect to the server (from the same machine)
 $ ssh localhost -p 2222
 ```
+Currently the ssh server supports no authentiaction methods so use it with caution. 
