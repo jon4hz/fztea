@@ -1,2 +1,5 @@
 .vscode
 .ssh
+completions/
+manpages/
+dist/
