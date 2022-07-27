@@ -1,0 +1,6 @@
+name: lint
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  lint:
+    uses: jon4hz/meta/.github/workflows/lint.yml@master

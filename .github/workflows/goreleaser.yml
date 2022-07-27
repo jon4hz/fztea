@@ -1,0 +1,16 @@
+---
+name: goreleaser
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+  
+jobs:
+  goreleaser:
+    uses: jon4hz/meta/.github/workflows/goreleaser.yml@master
+    secrets:
+      GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+      FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
+      AUR_KEY: ${{ secrets.AUR_KEY }}
