@@ -49,3 +49,9 @@ $ fztea server -l 127.0.0.1:2222
 $ ssh localhost -p 2222
 ```
 Currently the ssh server supports no authentiaction methods so use it with caution. 
+
+## 🎬 Demo
+
+
+https://user-images.githubusercontent.com/26183582/181772189-13d7aeaa-ac26-4701-8104-a71ed218539c.mp4
+
