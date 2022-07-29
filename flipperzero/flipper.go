@@ -19,7 +19,7 @@ const (
 	flipperScreenHeight = 32
 	flipperScreenWidth  = 128
 
-	fzEventInterval = time.Millisecond * 10
+	fzEventCoolDown = time.Millisecond * 10
 )
 
 type screenMsg string
@@ -43,7 +43,7 @@ func New(fz *FlipperZero) tea.Model {
 		updates:     make(chan string),
 		fz:          fz,
 		viewport:    viewport.New(flipperScreenWidth, flipperScreenHeight),
-		lastFZEvent: time.Now().Add(-fzEventInterval),
+		lastFZEvent: time.Now().Add(-fzEventCoolDown),
 		mu:          &sync.Mutex{},
 	}
 	m.viewport.MouseWheelEnabled = false
@@ -103,7 +103,7 @@ func min(a, b int) int {
 func (m *Model) sendFlipperEvent(event flipper.InputKey) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if time.Since(m.lastFZEvent) < fzEventInterval {
+	if time.Since(m.lastFZEvent) < fzEventCoolDown {
 		return
 	}
 	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
