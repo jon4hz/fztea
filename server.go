@@ -51,7 +51,7 @@ func server(cmd *coral.Command, args []string) {
 				m := model{
 					flipper: flipperzero.New(fz),
 				}
-				return m, []tea.ProgramOption{tea.WithAltScreen()}
+				return m, []tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 			}),
 			lm.Middleware(),
 		),

@@ -66,12 +66,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			key := mapKey(msg)
 			if key != -1 {
-				m.mu.Lock()
-				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypePress)
-				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypeShort)
-				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypeRelease)
-				m.mu.Unlock()
+				m.sendFlipperEvent(key)
 			}
+		}
+
+	case tea.MouseMsg:
+		event := mapMouse(msg)
+		if event != -1 {
+			m.sendFlipperEvent(event)
 		}
 
 	case tea.WindowSizeMsg:
@@ -92,6 +94,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m Model) sendFlipperEvent(event flipper.InputKey) {
+	m.mu.Lock()
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease)
+	m.mu.Unlock()
 }
 
 func (m Model) View() string {
@@ -152,6 +162,16 @@ func mapKey(key tea.KeyMsg) flipper.InputKey {
 		return flipper.InputKeyBack
 	case tea.KeyEnter, tea.KeySpace:
 		return flipper.InputKeyOk
+	}
+	return -1
+}
+
+func mapMouse(event tea.MouseMsg) flipper.InputKey {
+	switch event.Type {
+	case tea.MouseWheelUp:
+		return flipper.InputKeyUp
+	case tea.MouseWheelDown:
+		return flipper.InputKeyDown
 	}
 	return -1
 }

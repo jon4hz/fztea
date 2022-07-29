@@ -37,7 +37,7 @@ func root(cmd *coral.Command, args []string) {
 	m := model{
 		flipper: flipperzero.New(fz),
 	}
-	if err := tea.NewProgram(m).Start(); err != nil {
+	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
 		log.Fatalln(err)
 	}
 }
