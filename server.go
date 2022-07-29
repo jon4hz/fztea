@@ -18,8 +18,9 @@ import (
 )
 
 var serverFlags struct {
-	port   string
-	listen string
+	port           string
+	listen         string
+	authorizedKeys string
 }
 
 var serverCmd = &coral.Command{
@@ -31,6 +32,7 @@ var serverCmd = &coral.Command{
 func init() {
 	serverCmd.Flags().StringVarP(&serverFlags.port, "port", "p", "", "port to connect to")
 	serverCmd.Flags().StringVarP(&serverFlags.listen, "listen", "l", "127.0.0.1:2222", "address to listen on")
+	serverCmd.Flags().StringVarP(&serverFlags.authorizedKeys, "authorized-keys", "k", "", "authorized_keys file for public key authentication")
 }
 
 func server(cmd *coral.Command, args []string) {
@@ -41,7 +43,7 @@ func server(cmd *coral.Command, args []string) {
 
 	cl := newConnLimiter(1)
 
-	s, err := wish.NewServer(
+	sshOpts := []ssh.Option{
 		wish.WithAddress(serverFlags.listen),
 		wish.WithHostKeyPath(".ssh/flipperzero_tea_ed25519"),
 		wish.WithMiddleware(
@@ -59,6 +61,14 @@ func server(cmd *coral.Command, args []string) {
 			lm.Middleware(),
 			connLimit(cl),
 		),
+	}
+
+	if serverFlags.authorizedKeys != "" {
+		sshOpts = append(sshOpts, wish.WithAuthorizedKeys(serverFlags.authorizedKeys))
+	}
+
+	s, err := wish.NewServer(
+		sshOpts...,
 	)
 	if err != nil {
 		log.Fatalln(err)

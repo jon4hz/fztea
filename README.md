@@ -48,7 +48,12 @@ $ fztea server -l 127.0.0.1:2222
 # connect to the server (from the same machine)
 $ ssh localhost -p 2222
 ```
-Currently the ssh server supports no authentiaction methods so use it with caution. 
+By default, `fztea` doesn't require any authentication but you can specify an `authorized_keys` file if you want to.
+
+```bash
+# use authorized_keys for authentication
+$ fztea server -l 127.0.0.1:2222 -k ~/.ssh/authorized_keys
+```
 
 ## 🎬 Demo
 
