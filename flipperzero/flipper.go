@@ -2,6 +2,7 @@ package flipperzero
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,6 +29,7 @@ type Model struct {
 	fz       *FlipperZero
 	err      error
 	content  string
+	mu       *sync.Mutex
 }
 
 func New(fz *FlipperZero) tea.Model {
@@ -36,6 +38,7 @@ func New(fz *FlipperZero) tea.Model {
 		updates:  make(chan string),
 		fz:       fz,
 		viewport: viewport.New(128, 32),
+		mu:       &sync.Mutex{},
 	}
 	m.viewport.MouseWheelEnabled = false
 
@@ -60,9 +63,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			key := mapKey(msg)
 			if key != -1 {
+				m.mu.Lock()
 				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypePress)
 				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypeShort)
 				m.fz.Flipper.Gui.SendInputEvent(key, flipper.InputTypeRelease)
+				m.mu.Unlock()
 			}
 		}
 
