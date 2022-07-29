@@ -32,10 +32,12 @@ type Model struct {
 
 func New(fz *FlipperZero) tea.Model {
 	m := &Model{
-		Style:   lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
-		updates: make(chan string),
-		fz:      fz,
+		Style:    lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
+		updates:  make(chan string),
+		fz:       fz,
+		viewport: viewport.New(128, 32),
 	}
+	m.viewport.MouseWheelEnabled = false
 
 	return m
 }
@@ -65,26 +67,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		if !m.ready {
-			m.viewport = viewport.New(msg.Width, msg.Height)
-			m.viewport.SetContent(m.Style.Render(m.content))
-			m.ready = true
-		} else {
-			m.viewport.Width = msg.Width
-			m.viewport.Height = msg.Height
+		if msg.Width > 128 {
+			msg.Width = 128
 		}
+		m.viewport.Width = msg.Width
+		if msg.Height > 33 {
+			msg.Height = 33
+		}
+		m.viewport.Height = msg.Height
+		m.viewport.SetContent(m.Style.Render(m.content))
 
 	case screenMsg:
 		m.content = string(msg)
-		if m.ready {
-			m.viewport.SetContent(m.Style.Render(m.content))
-		}
+		m.viewport.SetContent(m.Style.Render(m.content))
 		cmds = append(cmds, listenScreenUpdate(m.updates))
 	}
-
-	var cmd tea.Cmd
-	m.viewport, cmd = m.viewport.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }

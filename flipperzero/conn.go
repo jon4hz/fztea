@@ -17,7 +17,7 @@ import (
 const (
 	flipperPid             = "5740"
 	flipperVid             = "0483"
-	startRpcSessionCommand = "start_rpc_session\r"
+	startRPCSessionCommand = "start_rpc_session\r"
 )
 
 type Opts func(f *FlipperZero)
@@ -82,7 +82,7 @@ func newConn(port string) (io.ReadWriter, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = ser.Write([]byte(startRpcSessionCommand))
+	_, err = ser.Write([]byte(startRPCSessionCommand))
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func newConn(port string) (io.ReadWriter, error) {
 	if err != nil {
 		return nil, err
 	}
-	if token != startRpcSessionCommand {
+	if token != startRPCSessionCommand {
 		return nil, errors.New(strings.TrimSpace(token))
 	}
 	return ser, nil
