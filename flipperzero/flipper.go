@@ -3,6 +3,7 @@ package flipperzero
 import (
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,6 +18,8 @@ const (
 
 	flipperScreenHeight = 32
 	flipperScreenWidth  = 128
+
+	fzEventInterval = time.Millisecond * 10
 )
 
 type screenMsg string
@@ -24,22 +27,24 @@ type screenMsg string
 var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
 type Model struct {
-	Style    lipgloss.Style
-	viewport viewport.Model
-	updates  chan string
-	fz       *FlipperZero
-	err      error
-	content  string
-	mu       *sync.Mutex
+	Style       lipgloss.Style
+	viewport    viewport.Model
+	updates     chan string
+	fz          *FlipperZero
+	err         error
+	content     string
+	lastFZEvent time.Time
+	mu          *sync.Mutex
 }
 
 func New(fz *FlipperZero) tea.Model {
 	m := &Model{
-		Style:    lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
-		updates:  make(chan string),
-		fz:       fz,
-		viewport: viewport.New(flipperScreenWidth, flipperScreenHeight),
-		mu:       &sync.Mutex{},
+		Style:       lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
+		updates:     make(chan string),
+		fz:          fz,
+		viewport:    viewport.New(flipperScreenWidth, flipperScreenHeight),
+		lastFZEvent: time.Now().Add(-fzEventInterval),
+		mu:          &sync.Mutex{},
 	}
 	m.viewport.MouseWheelEnabled = false
 
@@ -94,12 +99,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m Model) sendFlipperEvent(event flipper.InputKey) {
+func (m *Model) sendFlipperEvent(event flipper.InputKey) {
 	m.mu.Lock()
+	defer m.mu.Unlock()
+	if time.Since(m.lastFZEvent) < fzEventInterval {
+		return
+	}
 	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
 	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
 	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
-	m.mu.Unlock()
+	m.lastFZEvent = time.Now()
 }
 
 func (m Model) View() string {
