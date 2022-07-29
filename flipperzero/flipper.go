@@ -80,14 +80,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		if msg.Width > flipperScreenWidth {
-			msg.Width = flipperScreenWidth
-		}
-		m.viewport.Width = msg.Width
-		if msg.Height > flipperScreenHeight {
-			msg.Height = flipperScreenHeight
-		}
-		m.viewport.Height = msg.Height
+		m.viewport.Width = min(msg.Width, flipperScreenWidth)
+		m.viewport.Height = min(msg.Height, flipperScreenHeight)
 		m.viewport.SetContent(m.Style.Render(m.content))
 
 	case screenMsg:
@@ -97,6 +91,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func (m *Model) sendFlipperEvent(event flipper.InputKey) {
