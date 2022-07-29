@@ -48,7 +48,7 @@ func New(fz *FlipperZero) tea.Model {
 
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(func() tea.Msg {
-		m.fz.Flipper.Gui.StartScreenStream(m.updateScreen)
+		m.fz.Flipper.Gui.StartScreenStream(m.updateScreen) //nolint:errcheck
 		return nil
 	}, listenScreenUpdate(m.updates))
 }
@@ -96,9 +96,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) sendFlipperEvent(event flipper.InputKey) {
 	m.mu.Lock()
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease)
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
+	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
 	m.mu.Unlock()
 }
 
