@@ -14,6 +14,9 @@ const (
 	fullBlock      = '█'
 	upperHalfBlock = '▀'
 	lowerHalfBlock = '▄'
+
+	flipperScreenHeight = 32
+	flipperScreenWidth  = 128
 )
 
 type screenMsg string
@@ -37,7 +40,7 @@ func New(fz *FlipperZero) tea.Model {
 		Style:    lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
 		updates:  make(chan string),
 		fz:       fz,
-		viewport: viewport.New(128, 32),
+		viewport: viewport.New(flipperScreenWidth, flipperScreenHeight),
 		mu:       &sync.Mutex{},
 	}
 	m.viewport.MouseWheelEnabled = false
@@ -72,12 +75,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		if msg.Width > 128 {
-			msg.Width = 128
+		if msg.Width > flipperScreenWidth {
+			msg.Width = flipperScreenWidth
 		}
 		m.viewport.Width = msg.Width
-		if msg.Height > 33 {
-			msg.Height = 33
+		if msg.Height > flipperScreenHeight {
+			msg.Height = flipperScreenHeight
 		}
 		m.viewport.Height = msg.Height
 		m.viewport.SetContent(m.Style.Render(m.content))
