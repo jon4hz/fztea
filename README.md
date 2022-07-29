@@ -2,6 +2,7 @@
 [![lint](https://github.com/jon4hz/fztea/actions/workflows/lint.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/lint.yml)
 [![goreleaser](https://github.com/jon4hz/fztea/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/goreleaser.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jon4hz/fztea)](https://goreportcard.com/report/github.com/jon4hz/fztea)
+[![Powered by Dolphines](https://img.shields.io/badge/Powered%20by-Dolphins-blue)](https://img.shields.io/badge/Powered%20by-Dolphins-blue)
 
 A [bubbletea](https://github.com/charmbracelet/bubbletea)-bubble and TUI to interact with your flipper zero.  
 The flipper will be automatically detected, if multiple flippers are connected, the first one will be used.
