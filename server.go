@@ -38,6 +38,9 @@ func server(cmd *coral.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	cl := newConnLimiter(1)
+
 	s, err := wish.NewServer(
 		wish.WithAddress(serverFlags.listen),
 		wish.WithHostKeyPath(".ssh/flipperzero_tea_ed25519"),
@@ -54,6 +57,7 @@ func server(cmd *coral.Command, args []string) {
 				return m, []tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 			}),
 			lm.Middleware(),
+			connLimit(cl),
 		),
 	)
 	if err != nil {
