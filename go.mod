@@ -1,4 +1,4 @@
-module github.com/jon4hz/flipperzero-tea
+module github.com/jon4hz/fztea
 
 go 1.18
 

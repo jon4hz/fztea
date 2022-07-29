@@ -6,8 +6,8 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/jon4hz/flipperzero-tea/flipperzero"
-	"github.com/jon4hz/flipperzero-tea/internal/version"
+	"github.com/jon4hz/fztea/flipperzero"
+	"github.com/jon4hz/fztea/internal/version"
 	"github.com/muesli/coral"
 	mcoral "github.com/muesli/mango-coral"
 	"github.com/muesli/roff"
@@ -18,7 +18,7 @@ var rootFlags struct {
 }
 
 var rootCmd = &coral.Command{
-	Use:     "flipperzero-tea",
+	Use:     "fztea",
 	Short:   "TUI to interact with your flipper zero",
 	Version: version.Version,
 	Run:     root,

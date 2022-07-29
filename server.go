@@ -13,7 +13,7 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
-	"github.com/jon4hz/flipperzero-tea/flipperzero"
+	"github.com/jon4hz/fztea/flipperzero"
 	"github.com/muesli/coral"
 )
 

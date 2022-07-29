@@ -2,4 +2,4 @@
 set -e
 rm -rf manpages
 mkdir manpages
-go run . man | gzip -c >manpages/flipperzero-tea.1.gz
+go run . man | gzip -c >manpages/fztea.1.gz

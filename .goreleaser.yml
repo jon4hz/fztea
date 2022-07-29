@@ -1,26 +1,26 @@
 ---
 variables:
   main: "."
-  binary_name: "flipperzero-tea"
+  binary_name: "fztea"
   description: "TUI to interact with your flipper zero"
-  github_url: "https://github.com/jon4hz/flipperzero-tea"
+  github_url: "https://github.com/jon4hz/fztea"
   maintainer: "jonah <me@jon4hz.io>"
   license: "MIT"
   homepage: "https://jon4hz.io"
   aur_package: |-
       # bin
-      install -Dm755 "./flipperzero-tea" "${pkgdir}/usr/bin/flipperzero-tea"
+      install -Dm755 "./fztea" "${pkgdir}/usr/bin/fztea"
       # license
-      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/flipperzero-tea/LICENSE"
+      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/fztea/LICENSE"
       # completions
       mkdir -p "${pkgdir}/usr/share/bash-completion/completions/"
       mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
       mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d/"
-      install -Dm644 "./completions/flipperzero-tea.bash" "${pkgdir}/usr/share/bash-completion/completions/flipperzero-tea"
-      install -Dm644 "./completions/flipperzero-tea.zsh" "${pkgdir}/usr/share/zsh/site-functions/_flipperzero-tea"
-      install -Dm644 "./completions/flipperzero-tea.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/flipperzero-tea.fish"
+      install -Dm644 "./completions/fztea.bash" "${pkgdir}/usr/share/bash-completion/completions/fztea"
+      install -Dm644 "./completions/fztea.zsh" "${pkgdir}/usr/share/zsh/site-functions/_fztea"
+      install -Dm644 "./completions/fztea.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/fztea.fish"
       # man pages
-      install -Dm644 "./manpages/flipperzero-tea.1.gz" "${pkgdir}/usr/share/man/man1/flipperzero-tea.1.gz"
+      install -Dm644 "./manpages/fztea.1.gz" "${pkgdir}/usr/share/man/man1/fztea.1.gz"
 
 before:
   hooks:
