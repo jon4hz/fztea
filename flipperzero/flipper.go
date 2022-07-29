@@ -119,7 +119,11 @@ func (m Model) updateScreen(frame flipper.ScreenFrame) {
 			l.WriteRune(r)
 		}
 		s.WriteString(l.String())
-		s.WriteByte('\n')
+
+		// if not last line
+		if y < 62 {
+			s.WriteRune('\n')
+		}
 	}
 	go func() {
 		m.updates <- s.String()
