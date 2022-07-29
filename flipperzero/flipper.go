@@ -26,9 +26,7 @@ var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 type Model struct {
 	Style    lipgloss.Style
 	viewport viewport.Model
-	ready    bool
 	updates  chan string
-	port     string
 	fz       *FlipperZero
 	err      error
 	content  string
