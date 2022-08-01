@@ -67,16 +67,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			return nil, tea.Quit
 		default:
-			key := mapKey(msg)
+			key, getlong := mapKey(msg)
 			if key != -1 {
-				m.sendFlipperEvent(key)
+				m.sendFlipperEvent(key, getlong)
 			}
 		}
 
 	case tea.MouseMsg:
 		event := mapMouse(msg)
 		if event != -1 {
-			m.sendFlipperEvent(event)
+			m.sendFlipperEvent(event, false)
 		}
 
 	case tea.WindowSizeMsg:
@@ -100,15 +100,21 @@ func min(a, b int) int {
 	return b
 }
 
-func (m *Model) sendFlipperEvent(event flipper.InputKey) {
+func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if time.Since(m.lastFZEvent) < fzEventCoolDown {
 		return
 	}
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
-	m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
+	if !isLong{
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
+	}else{
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeLong)   //nolint:errcheck
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
+	}
 	m.lastFZEvent = time.Now()
 }
 
@@ -154,24 +160,36 @@ func listenScreenUpdate(u <-chan string) tea.Cmd {
 	}
 }
 
-func mapKey(key tea.KeyMsg) flipper.InputKey {
+func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
 	switch key.Type {
 	case tea.KeyUp:
-		return flipper.InputKeyUp
+		return flipper.InputKeyUp, false
 	case tea.KeyDown:
-		return flipper.InputKeyDown
+		return flipper.InputKeyDown, false
 	case tea.KeyRight:
-		return flipper.InputKeyRight
+		return flipper.InputKeyRight, false
 	case tea.KeyLeft:
-		return flipper.InputKeyLeft
+		return flipper.InputKeyLeft, false
 	case tea.KeyEscape:
-		return flipper.InputKeyBack
+		return flipper.InputKeyBack, true
 	case tea.KeyBackspace:
-		return flipper.InputKeyBack
-	case tea.KeyEnter, tea.KeySpace:
-		return flipper.InputKeyOk
+		return flipper.InputKeyBack, false
+	case tea.KeyEnter:
+		return flipper.InputKeyOk, false
+	case tea.KeySpace:
+		return flipper.InputKeyOk, true
 	}
-	return -1
+	switch key.String() {
+	case "w":
+		return flipper.InputKeyUp, true
+	case "a":
+		return flipper.InputKeyLeft, true
+	case "s":
+		return flipper.InputKeyDown, true
+	case "d":
+		return flipper.InputKeyRight, true
+	}
+	return -1, false
 }
 
 func mapMouse(event tea.MouseMsg) flipper.InputKey {
