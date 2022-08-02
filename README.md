@@ -55,6 +55,22 @@ By default, `fztea` doesn't require any authentication but you can specify an `a
 $ fztea server -l 127.0.0.1:2222 -k ~/.ssh/authorized_keys
 ```
 
+## ⌨️ Button Mapping
+| Key             | Flipper Event | Keypress Type
+|-----------------|---------------|--------------|
+| w, ↑            | up            | short        |
+| d, →            | right         | short        |
+| s, ↓            | down          | short        |
+| a, ←            | left          | short        |
+| o, enter, space | ok            | short        |
+| b, back, esc    | back          | short        |
+| W, shift + ↑    | up            | long         |
+| D, shift + →    | right         | long         |
+| S, shift + ↓    | down          | long         |
+| A, shift + ←    | left          | long         |
+| O               | ok            | long         |
+| B               | back          | long         |
+
 ## 🎬 Demo
 
 
