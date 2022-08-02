@@ -106,13 +106,13 @@ func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 	if time.Since(m.lastFZEvent) < fzEventCoolDown {
 		return
 	}
-	if !isLong{
+	if !isLong {
 		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
 		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
 		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
-	}else{
+	} else {
 		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeLong)   //nolint:errcheck
+		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeLong)    //nolint:errcheck
 		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
 	}
 	m.lastFZEvent = time.Now()
@@ -161,33 +161,31 @@ func listenScreenUpdate(u <-chan string) tea.Cmd {
 }
 
 func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
-	switch key.Type {
-	case tea.KeyUp:
-		return flipper.InputKeyUp, false
-	case tea.KeyDown:
-		return flipper.InputKeyDown, false
-	case tea.KeyRight:
-		return flipper.InputKeyRight, false
-	case tea.KeyLeft:
-		return flipper.InputKeyLeft, false
-	case tea.KeyEscape:
-		return flipper.InputKeyBack, true
-	case tea.KeyBackspace:
-		return flipper.InputKeyBack, false
-	case tea.KeyEnter:
-		return flipper.InputKeyOk, false
-	case tea.KeySpace:
-		return flipper.InputKeyOk, true
-	}
 	switch key.String() {
-	case "w":
+	case "w", "up":
+		return flipper.InputKeyUp, false
+	case "a", "left":
+		return flipper.InputKeyLeft, false
+	case "s", "down":
+		return flipper.InputKeyDown, false
+	case "d", "right":
+		return flipper.InputKeyRight, false
+	case "o", "enter", " ":
+		return flipper.InputKeyOk, false
+	case "b", "backspace", "esc":
+		return flipper.InputKeyBack, false
+	case "W", "shift+up":
 		return flipper.InputKeyUp, true
-	case "a":
+	case "A", "shift+left":
 		return flipper.InputKeyLeft, true
-	case "s":
+	case "S", "shift+down":
 		return flipper.InputKeyDown, true
-	case "d":
+	case "D", "shift+right":
 		return flipper.InputKeyRight, true
+	case "O":
+		return flipper.InputKeyOk, true
+	case "B":
+		return flipper.InputKeyBack, true
 	}
 	return -1, false
 }
