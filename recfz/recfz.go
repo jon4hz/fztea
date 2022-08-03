@@ -70,7 +70,7 @@ func NewFlipperZero(opts ...Opts) (*FlipperZero, error) {
 	f.ctx, f.cancel = context.WithCancel(f.parentCtx)
 
 	if f.port == "" {
-		p, err := autodetectFlipper()
+		p, err := f.autodetectFlipper()
 		if err != nil {
 			return nil, fmt.Errorf("could not autodetect flipper: %w", err)
 		}

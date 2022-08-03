@@ -2,6 +2,7 @@ package recfz
 
 import (
 	"errors"
+	"log"
 
 	"github.com/flipperdevices/go-flipper"
 )
@@ -12,7 +13,11 @@ func (f *FlipperZero) startScreenStream() error {
 	if f.streamScreenCallback == nil {
 		return errors.New("no stream screen callback set")
 	}
-	return f.flipper.Gui.StartScreenStream(f.streamScreenCallback)
+	if err := f.flipper.Gui.StartScreenStream(f.streamScreenCallback); err != nil {
+		return err
+	}
+	log.Println("started screen streaming...")
+	return nil
 }
 
 func (f *FlipperZero) SendShortPress(event flipper.InputKey) {

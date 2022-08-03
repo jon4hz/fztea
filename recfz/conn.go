@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ func (f *FlipperZero) reconnect() error {
 	if err != nil {
 		return fmt.Errorf("could not connect to flipper: %w", err)
 	}
+	log.Println("successfully connected to flipper")
 
 	f.SetFlipper(fz)
 	f.SetConn(conn)
@@ -41,10 +43,13 @@ func (f *FlipperZero) newConn() (serial.Port, error) {
 	port := f.port
 	if !f.staticPort {
 		var err error
-		port, err = autodetectFlipper()
+		port, err = f.autodetectFlipper()
 		if err != nil {
 			return nil, err
 		}
+	}
+	if f.conn != nil {
+		f.conn.Close()
 	}
 	ser, err := serial.Open(port, &serial.Mode{})
 	if err != nil {
@@ -69,11 +74,11 @@ func (f *FlipperZero) newConn() (serial.Port, error) {
 	}
 
 	go f.checkConnLoop(ser)
-
+	f.logger.Println("successfully opened serial connection to flipper")
 	return ser, nil
 }
 
-func autodetectFlipper() (string, error) {
+func (f *FlipperZero) autodetectFlipper() (string, error) {
 	ports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
 		return "", err
@@ -81,6 +86,7 @@ func autodetectFlipper() (string, error) {
 
 	for _, p := range ports {
 		if p.PID == flipperPid && p.VID == flipperVid {
+			f.logger.Printf("found flipper on %s", p.Name)
 			return p.Name, nil
 		}
 	}
