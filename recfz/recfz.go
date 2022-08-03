@@ -122,3 +122,12 @@ func (f *FlipperZero) getConn() serial.Port {
 	defer f.mu.Unlock()
 	return f.conn
 }
+
+func (f *FlipperZero) GetFlipper() (*flipper.Flipper, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.flipper == nil {
+		return nil, fmt.Errorf("flipper is not connected")
+	}
+	return f.flipper, nil
+}
