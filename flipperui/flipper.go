@@ -1,4 +1,4 @@
-package flipperzero
+package flipperui
 
 import (
 	"strings"
@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/flipperdevices/go-flipper"
+	"github.com/jon4hz/fztea/recfz"
 )
 
 const (
@@ -27,24 +28,24 @@ type screenMsg string
 var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
 type Model struct {
-	Style       lipgloss.Style
-	viewport    viewport.Model
-	updates     chan string
-	fz          *FlipperZero
-	err         error
-	content     string
-	lastFZEvent time.Time
-	mu          *sync.Mutex
+	Style        lipgloss.Style
+	viewport     viewport.Model
+	fz           *recfz.FlipperZero
+	err          error
+	content      string
+	lastFZEvent  time.Time
+	screenUpdate <-chan string
+	mu           *sync.Mutex
 }
 
-func New(fz *FlipperZero) tea.Model {
+func New(fz *recfz.FlipperZero, screenUpdate <-chan string) tea.Model {
 	m := &Model{
-		Style:       lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
-		updates:     make(chan string),
-		fz:          fz,
-		viewport:    viewport.New(flipperScreenWidth, flipperScreenHeight),
-		lastFZEvent: time.Now().Add(-fzEventCoolDown),
-		mu:          &sync.Mutex{},
+		Style:        lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
+		fz:           fz,
+		viewport:     viewport.New(flipperScreenWidth, flipperScreenHeight),
+		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
+		screenUpdate: screenUpdate,
+		mu:           &sync.Mutex{},
 	}
 	m.viewport.MouseWheelEnabled = false
 
@@ -52,10 +53,13 @@ func New(fz *FlipperZero) tea.Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(func() tea.Msg {
-		m.fz.Flipper.Gui.StartScreenStream(m.updateScreen) //nolint:errcheck
-		return nil
-	}, listenScreenUpdate(m.updates))
+	return listenScreenUpdate(m.screenUpdate)
+}
+
+func listenScreenUpdate(u <-chan string) tea.Cmd {
+	return func() tea.Msg {
+		return screenMsg(<-u)
+	}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -87,7 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case screenMsg:
 		m.content = string(msg)
 		m.viewport.SetContent(m.Style.Render(m.content))
-		cmds = append(cmds, listenScreenUpdate(m.updates))
+		cmds = append(cmds, listenScreenUpdate(m.screenUpdate))
 	}
 
 	return m, tea.Batch(cmds...)
@@ -98,66 +102,6 @@ func min(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if time.Since(m.lastFZEvent) < fzEventCoolDown {
-		return
-	}
-	if !isLong {
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
-	} else {
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeLong)    //nolint:errcheck
-		m.fz.Flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
-	}
-	m.lastFZEvent = time.Now()
-}
-
-func (m Model) View() string {
-	if m.err != nil {
-		return ErrStyle.Render(m.err.Error())
-	}
-	return m.viewport.View()
-}
-
-func (m Model) updateScreen(frame flipper.ScreenFrame) {
-	var s strings.Builder
-	for y := 0; y < 64; y += 2 {
-		var l strings.Builder
-		for x := 0; x < 128; x++ {
-			r := fullBlock
-			if !frame.IsPixelSet(x, y) && frame.IsPixelSet(x, y+1) {
-				r = lowerHalfBlock
-			}
-			if frame.IsPixelSet(x, y) && !frame.IsPixelSet(x, y+1) {
-				r = upperHalfBlock
-			}
-			if !frame.IsPixelSet(x, y) && !frame.IsPixelSet(x, y+1) {
-				r = ' '
-			}
-			l.WriteRune(r)
-		}
-		s.WriteString(l.String())
-
-		// if not last line
-		if y < 62 {
-			s.WriteRune('\n')
-		}
-	}
-	go func() {
-		m.updates <- s.String()
-	}()
-}
-
-func listenScreenUpdate(u <-chan string) tea.Cmd {
-	return func() tea.Msg {
-		return screenMsg(<-u)
-	}
 }
 
 func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
@@ -198,4 +142,56 @@ func mapMouse(event tea.MouseMsg) flipper.InputKey {
 		return flipper.InputKeyDown
 	}
 	return -1
+}
+
+func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if time.Since(m.lastFZEvent) < fzEventCoolDown {
+		return
+	}
+	if !isLong {
+		m.fz.SendShortPress(event)
+	} else {
+		m.fz.SendLongPress(event)
+	}
+	m.lastFZEvent = time.Now()
+}
+
+func (m Model) View() string {
+	if m.err != nil {
+		return ErrStyle.Render(m.err.Error())
+	}
+	return m.viewport.View()
+}
+
+func UpdateScreen(updates chan<- string) func(frame flipper.ScreenFrame) {
+	return func(frame flipper.ScreenFrame) {
+		var s strings.Builder
+		for y := 0; y < 64; y += 2 {
+			var l strings.Builder
+			for x := 0; x < 128; x++ {
+				r := fullBlock
+				if !frame.IsPixelSet(x, y) && frame.IsPixelSet(x, y+1) {
+					r = lowerHalfBlock
+				}
+				if frame.IsPixelSet(x, y) && !frame.IsPixelSet(x, y+1) {
+					r = upperHalfBlock
+				}
+				if !frame.IsPixelSet(x, y) && !frame.IsPixelSet(x, y+1) {
+					r = ' '
+				}
+				l.WriteRune(r)
+			}
+			s.WriteString(l.String())
+
+			// if not last line
+			if y < 62 {
+				s.WriteRune('\n')
+			}
+		}
+		go func() {
+			updates <- s.String()
+		}()
+	}
 }

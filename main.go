@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/jon4hz/fztea/flipperzero"
+	"github.com/jon4hz/fztea/flipperui"
 	"github.com/jon4hz/fztea/internal/version"
+	"github.com/jon4hz/fztea/recfz"
 	"github.com/muesli/coral"
 	mcoral "github.com/muesli/mango-coral"
 	"github.com/muesli/roff"
@@ -30,12 +32,23 @@ func init() {
 }
 
 func root(cmd *coral.Command, args []string) {
-	fz, err := flipperzero.NewFlipperZero(flipperzero.WithPort(rootFlags.port))
+	screenUpdates := make(chan string)
+	fz, err := recfz.NewFlipperZero(
+		recfz.WithContext(cmd.Context()),
+		recfz.WithPort(rootFlags.port),
+		recfz.WithStreamScreenCallback(flipperui.UpdateScreen(screenUpdates)),
+		recfz.WithLogger(log.New(io.Discard, "", 0)),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer fz.Close()
+
+	if err := fz.Connect(); err != nil {
+		log.Fatal(err)
+	}
 	m := model{
-		flipper: flipperzero.New(fz),
+		flipper: flipperui.New(fz, screenUpdates),
 	}
 	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
 		log.Fatalln(err)
