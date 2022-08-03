@@ -90,7 +90,7 @@ func (f *FlipperZero) Close() {
 	f.isClosing = true
 	f.cancel()
 	close(f.reconnCh)
-	f.getConn().Close()
+	f.conn.Close()
 }
 
 func (f *FlipperZero) getClosing() bool {
