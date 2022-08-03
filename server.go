@@ -13,7 +13,8 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
-	"github.com/jon4hz/fztea/flipperzero"
+	"github.com/jon4hz/fztea/flipperui"
+	"github.com/jon4hz/fztea/recfz"
 	"github.com/muesli/coral"
 )
 
@@ -36,8 +37,17 @@ func init() {
 }
 
 func server(cmd *coral.Command, args []string) {
-	fz, err := flipperzero.NewFlipperZero(flipperzero.WithPort(serverFlags.port))
+	screenUpdates := make(chan string)
+	fz, err := recfz.NewFlipperZero(
+		recfz.WithPort(serverFlags.port),
+		recfz.WithStreamScreenCallback(flipperui.UpdateScreen(screenUpdates)),
+		recfz.WithContext(cmd.Context()),
+	)
 	if err != nil {
+		log.Fatal(err)
+	}
+	defer fz.Close()
+	if err := fz.Connect(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -54,7 +64,7 @@ func server(cmd *coral.Command, args []string) {
 					return nil, nil
 				}
 				m := model{
-					flipper: flipperzero.New(fz),
+					flipper: flipperui.New(fz, screenUpdates),
 				}
 				return m, []tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 			}),
