@@ -2,7 +2,6 @@ package recfz
 
 import (
 	"errors"
-	"log"
 
 	"github.com/flipperdevices/go-flipper"
 )
@@ -16,7 +15,7 @@ func (f *FlipperZero) startScreenStream() error {
 	if err := f.flipper.Gui.StartScreenStream(f.streamScreenCallback); err != nil {
 		return err
 	}
-	log.Println("started screen streaming...")
+	f.logger.Println("started screen streaming...")
 	return nil
 }
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 	"time"
 
@@ -31,7 +30,7 @@ func (f *FlipperZero) reconnect() error {
 	if err != nil {
 		return fmt.Errorf("could not connect to flipper: %w", err)
 	}
-	log.Println("successfully connected to flipper")
+	f.logger.Println("successfully connected to flipper")
 
 	f.SetFlipper(fz)
 	f.SetConn(conn)
@@ -48,8 +47,8 @@ func (f *FlipperZero) newConn() (serial.Port, error) {
 			return nil, err
 		}
 	}
-	if f.conn != nil {
-		f.conn.Close()
+	if conn := f.getConn(); conn != nil {
+		conn.Close()
 	}
 	ser, err := serial.Open(port, &serial.Mode{})
 	if err != nil {
