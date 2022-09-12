@@ -44,6 +44,7 @@ type Model struct {
 	viewport      viewport.Model
 	fz            *recfz.FlipperZero
 	err           error
+	errTime       time.Time
 	content       string
 	lastFZEvent   time.Time
 	screenUpdate  <-chan ScreenMsg
@@ -176,8 +177,8 @@ func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 }
 
 func (m Model) View() string {
-	if m.err != nil {
-		return ErrStyle.Render(m.err.Error())
+	if m.err != nil && time.Since(m.errTime) < time.Second*4 {
+		return ErrStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Truncate(time.Second).Seconds()), m.err.Error()))
 	}
 	return m.viewport.View()
 }
@@ -216,12 +217,19 @@ func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 	}
 }
 
-func (m Model) saveImage() {
+func (m *Model) saveImage() {
 	out, err := os.Create(fmt.Sprintf("flipper_%s.png", time.Now().Format("20060102150405")))
 	if err != nil {
-		m.err = err
+		m.setError(err)
 		return
 	}
 	defer out.Close()
-	png.Encode(out, m.currentScreen)
+	if err := png.Encode(out, m.currentScreen); err != nil {
+		m.setError(err)
+	}
+}
+
+func (m *Model) setError(err error) {
+	m.err = err
+	m.errTime = time.Now()
 }
