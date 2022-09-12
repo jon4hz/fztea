@@ -178,7 +178,7 @@ func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 
 func (m Model) View() string {
 	if m.err != nil && time.Since(m.errTime) < time.Second*4 {
-		return ErrStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Seconds()), m.err.Error()))
+		return ErrStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Seconds()), m.err))
 	}
 	return m.viewport.View()
 }
