@@ -1,6 +1,10 @@
 package flipperui
 
 import (
+	"fmt"
+	"image"
+	"image/png"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -21,26 +25,35 @@ const (
 	flipperScreenWidth  = 128
 
 	fzEventCoolDown = time.Millisecond * 10
+
+	colorOrange = lipgloss.Color("#FF8C00")
+	colorWhite  = lipgloss.Color("#000000")
 )
 
-type screenMsg string
+type (
+	ScreenMsg struct {
+		screen string
+		image  image.Image
+	}
+)
 
 var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
 type Model struct {
-	Style        lipgloss.Style
-	viewport     viewport.Model
-	fz           *recfz.FlipperZero
-	err          error
-	content      string
-	lastFZEvent  time.Time
-	screenUpdate <-chan string
-	mu           *sync.Mutex
+	Style         lipgloss.Style
+	viewport      viewport.Model
+	fz            *recfz.FlipperZero
+	err           error
+	content       string
+	lastFZEvent   time.Time
+	screenUpdate  <-chan ScreenMsg
+	currentScreen image.Image
+	mu            *sync.Mutex
 }
 
-func New(fz *recfz.FlipperZero, screenUpdate <-chan string) tea.Model {
+func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg) tea.Model {
 	m := &Model{
-		Style:        lipgloss.NewStyle().Background(lipgloss.Color("#FF8C00")).Foreground(lipgloss.Color("#000000")),
+		Style:        lipgloss.NewStyle().Background(colorOrange).Foreground(colorWhite),
 		fz:           fz,
 		viewport:     viewport.New(flipperScreenWidth, flipperScreenHeight),
 		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
@@ -56,9 +69,9 @@ func (m Model) Init() tea.Cmd {
 	return listenScreenUpdate(m.screenUpdate)
 }
 
-func listenScreenUpdate(u <-chan string) tea.Cmd {
+func listenScreenUpdate(u <-chan ScreenMsg) tea.Cmd {
 	return func() tea.Msg {
-		return screenMsg(<-u)
+		return <-u
 	}
 }
 
@@ -70,6 +83,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return nil, tea.Quit
+		case tea.KeyCtrlS:
+			m.saveImage()
+			return m, nil
 		default:
 			key, getlong := mapKey(msg)
 			if key != -1 {
@@ -88,8 +104,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Height = min(msg.Height, flipperScreenHeight)
 		m.viewport.SetContent(m.Style.Render(m.content))
 
-	case screenMsg:
-		m.content = string(msg)
+	case ScreenMsg:
+		m.content = msg.screen
+		m.currentScreen = msg.image
 		m.viewport.SetContent(m.Style.Render(m.content))
 		cmds = append(cmds, listenScreenUpdate(m.screenUpdate))
 	}
@@ -165,7 +182,7 @@ func (m Model) View() string {
 	return m.viewport.View()
 }
 
-func UpdateScreen(updates chan<- string) func(frame flipper.ScreenFrame) {
+func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 	return func(frame flipper.ScreenFrame) {
 		var s strings.Builder
 		for y := 0; y < 64; y += 2 {
@@ -191,7 +208,20 @@ func UpdateScreen(updates chan<- string) func(frame flipper.ScreenFrame) {
 			}
 		}
 		go func() {
-			updates <- s.String()
+			updates <- ScreenMsg{
+				screen: s.String(),
+				image:  frame.ToImage(colorWhite, colorOrange),
+			}
 		}()
 	}
+}
+
+func (m Model) saveImage() {
+	out, err := os.Create(fmt.Sprintf("flipper_%s.png", time.Now().Format("20060102150405")))
+	if err != nil {
+		m.err = err
+		return
+	}
+	defer out.Close()
+	png.Encode(out, m.currentScreen)
 }
