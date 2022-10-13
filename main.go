@@ -32,7 +32,7 @@ func init() {
 }
 
 func root(cmd *coral.Command, args []string) {
-	screenUpdates := make(chan string)
+	screenUpdates := make(chan flipperui.ScreenMsg)
 	fz, err := recfz.NewFlipperZero(
 		recfz.WithContext(cmd.Context()),
 		recfz.WithPort(rootFlags.port),

@@ -37,7 +37,7 @@ func init() {
 }
 
 func server(cmd *coral.Command, args []string) {
-	screenUpdates := make(chan string)
+	screenUpdates := make(chan flipperui.ScreenMsg)
 	fz, err := recfz.NewFlipperZero(
 		recfz.WithPort(serverFlags.port),
 		recfz.WithStreamScreenCallback(flipperui.UpdateScreen(screenUpdates)),
