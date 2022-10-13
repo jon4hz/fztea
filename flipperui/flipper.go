@@ -12,6 +12,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/disintegration/imaging"
 	"github.com/flipperdevices/go-flipper"
 	"github.com/jon4hz/fztea/recfz"
 )
@@ -218,13 +219,16 @@ func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 }
 
 func (m *Model) saveImage() {
+	resImg := imaging.Resize(m.currentScreen, 1024, 512, imaging.Box)
+
 	out, err := os.Create(fmt.Sprintf("flipper_%s.png", time.Now().Format("20060102150405")))
 	if err != nil {
 		m.setError(err)
 		return
 	}
 	defer out.Close()
-	if err := png.Encode(out, m.currentScreen); err != nil {
+
+	if err := png.Encode(out, resImg); err != nil {
 		m.setError(err)
 	}
 }
