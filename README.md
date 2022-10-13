@@ -48,12 +48,17 @@ $ fztea server -l 127.0.0.1:2222
 # connect to the server (from the same machine)
 $ ssh localhost -p 2222
 ```
+
 By default, `fztea` doesn't require any authentication but you can specify an `authorized_keys` file if you want to.
 
 ```bash
 # use authorized_keys for authentication
 $ fztea server -l 127.0.0.1:2222 -k ~/.ssh/authorized_keys
 ```
+
+## 📸 Screenshots
+You can take a screenshot of the flipper using `ctrl+s` at any time. `Fztea` will store the screenshot in the working directoy in a 1024x512px resolution.
+
 
 ## ⌨️ Button Mapping
 | Key             | Flipper Event | Keypress Type
