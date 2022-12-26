@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	"github.com/gliderlabs/ssh"
 )
 
 type connLimiter struct {
