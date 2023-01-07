@@ -22,6 +22,9 @@ func (f *FlipperZero) startScreenStream() error {
 func (f *FlipperZero) SendShortPress(event flipper.InputKey) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if f.flipper == nil {
+		return
+	}
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypeShort)   //nolint:errcheck
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
@@ -30,6 +33,9 @@ func (f *FlipperZero) SendShortPress(event flipper.InputKey) {
 func (f *FlipperZero) SendLongPress(event flipper.InputKey) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if f.flipper == nil {
+		return
+	}
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypePress)   //nolint:errcheck
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypeLong)    //nolint:errcheck
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
