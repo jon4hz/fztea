@@ -13,7 +13,7 @@ require (
 	github.com/muesli/coral v1.0.0
 	github.com/muesli/mango-coral v1.0.1
 	github.com/muesli/roff v0.1.0
-	go.bug.st/serial v1.4.1
+	go.bug.st/serial v1.5.0
 )
 
 require (
