@@ -22,14 +22,6 @@ jobs:
     env:
       flags: ""
     steps:
-      - if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: echo "flags=--nightly" >> $GITHUB_ENV
-      - if: matrix.os == 'ubuntu-latest'
-        run: echo "goos=linux" >> $GITHUB_ENV
-      - if: matrix.os == 'macos-latest'
-        run: echo "goos=darwin" >> $GITHUB_ENV
-      - if: matrix.os == 'windows-latest'
-        run: echo "goos=windows" >> $GITHUB_ENV
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -40,11 +32,25 @@ jobs:
       - shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      - id: cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
+        if: matrix.os == 'ubuntu-latest'
         with:
-          path: dist/${{ env.goos }}
-          key: ${{ env.goos }}-${{ env.sha_short }}
+          path: dist/linux
+          key: linux-${{ env.sha_short }}
+      - uses: actions/cache@v3
+        if: matrix.os == 'macos-latest'
+        with:
+          path: dist/darwin
+          key: darwin-${{ env.sha_short }}
+      - uses: actions/cache@v3
+        if: matrix.os == 'windows-latest'
+        with:
+          path: dist/windows
+          key: windows-${{ env.sha_short }}
+          enableCrossOsArchive: true
+      - if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: echo "flags=--nightly" >> $GITHUB_ENV
       - uses: goreleaser/goreleaser-action@v4
         if: steps.cache.outputs.cache-hit != 'true' # do not run if cache hit
         with:
@@ -67,7 +73,8 @@ jobs:
     - uses: actions/setup-go@v3
       with:
         go-version: 1.19
-    
+        cache: true
+  
     # copy the cashes from prepare
     - shell: bash
       run: |
@@ -84,6 +91,7 @@ jobs:
       with:
         path: dist/windows
         key: windows-${{ env.sha_short }}
+        enableCrossOsArchive: true
     
     # release 
     - uses: goreleaser/goreleaser-action@v4

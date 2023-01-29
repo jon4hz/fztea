@@ -1,6 +1,6 @@
 # 🐬🧋 Fztea (flipperzero-tea)
 [![lint](https://github.com/jon4hz/fztea/actions/workflows/lint.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/lint.yml)
-[![goreleaser](https://github.com/jon4hz/fztea/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/goreleaser.yml)
+[![goreleaser](https://github.com/jon4hz/fztea/actions/workflows/release.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jon4hz/fztea)](https://goreportcard.com/report/github.com/jon4hz/fztea)
 [![Powered by Dolphines](https://img.shields.io/badge/Powered%20by-Dolphins-blue)](https://img.shields.io/badge/Powered%20by-Dolphins-blue)
 
