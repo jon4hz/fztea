@@ -6,6 +6,8 @@ import (
 	"github.com/flipperdevices/go-flipper"
 )
 
+// startScreenStream starts a screen stream from the flipper zero device.
+// It triggers a callback function for every new screen frame.
 func (f *FlipperZero) startScreenStream() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -19,6 +21,8 @@ func (f *FlipperZero) startScreenStream() error {
 	return nil
 }
 
+// SendShortPress sends a short press event to the flipper zero device.
+// If the flipper zero device is not connected, it will do nothing.
 func (f *FlipperZero) SendShortPress(event flipper.InputKey) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -30,6 +34,8 @@ func (f *FlipperZero) SendShortPress(event flipper.InputKey) {
 	f.flipper.Gui.SendInputEvent(event, flipper.InputTypeRelease) //nolint:errcheck
 }
 
+// SendLongPress sends a long press event to the flipper zero device.
+// If the flipper zero device is not connected, it will do nothing.
 func (f *FlipperZero) SendLongPress(event flipper.InputKey) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

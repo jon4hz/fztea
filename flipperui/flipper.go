@@ -18,48 +18,71 @@ import (
 )
 
 const (
+	// building blocks to draw the flipper screen in the terminal.
 	fullBlock      = '█'
 	upperHalfBlock = '▀'
 	lowerHalfBlock = '▄'
 
+	// screen size of the flipper
 	flipperScreenHeight = 32
 	flipperScreenWidth  = 128
 
+	// fzEventCoolDown is the time that must pass between two events that are sent to the flipper.
+	// That poor serial connection can handle only so much :(
 	fzEventCoolDown = time.Millisecond * 10
 
-	colorOrange = lipgloss.Color("#FF8C00")
-	colorWhite  = lipgloss.Color("#000000")
+	// some default colors
+	colorBg = lipgloss.Color("#FF8C00")
+	colorFg = lipgloss.Color("#000000")
 )
 
 type (
+	// ScreenMsg is a message that is sent when the flipper sends a screen update.
 	ScreenMsg struct {
 		screen string
 		image  image.Image
 	}
 )
 
+// ErrStyle is the style of the error message
 var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
+// Model represents the flipper model.
+// It also implements the bubbletea.Model interface.
 type Model struct {
-	Style                lipgloss.Style
-	viewport             viewport.Model
-	fz                   *recfz.FlipperZero
-	err                  error
-	errTime              time.Time
-	content              string
-	lastFZEvent          time.Time
-	screenUpdate         <-chan ScreenMsg
-	currentScreen        image.Image
-	mu                   *sync.Mutex
+	// Style is the style of the flipper screen
+	Style lipgloss.Style
+	// viewport is used to handle resizing easily
+	viewport viewport.Model
+	// fz is the flipper zero device
+	fz *recfz.FlipperZero
+	// err represents the last error that occurred. It will be displayed for a few seconds.
+	err error
+	// errTime is the time when the last error occurred
+	errTime time.Time
+	// content is the current screen of the flipper as a string
+	content string
+	// lastFZEvent is the time of the last event that was sent to the flipper.
+	lastFZEvent time.Time
+	// screenUpdate is a channel that receives screen updates from the flipper
+	screenUpdate <-chan ScreenMsg
+	// currentScreen is the last screen that was received from the flipper
+	currentScreen image.Image
+	// mutex to ensure that only one goroutine can send events to the flipper at a time
+	mu *sync.Mutex
+	// resolution of the screenshots
 	screenshotResolution struct {
 		width  int
 		height int
 	}
 }
 
+var _ tea.Model = (*Model)(nil)
+
+// New constructs a new flipper model.
 func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOpts) tea.Model {
-	m := &Model{
-		Style:        lipgloss.NewStyle().Background(colorOrange).Foreground(colorWhite),
+	m := Model{
+		Style:        lipgloss.NewStyle().Background(colorBg).Foreground(colorFg),
 		fz:           fz,
 		viewport:     viewport.New(flipperScreenWidth, flipperScreenHeight),
 		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
@@ -76,22 +99,26 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOp
 	m.viewport.MouseWheelEnabled = false
 
 	for _, opt := range opts {
-		opt(m)
+		opt(&m)
 	}
 
-	return m
+	return &m
 }
 
+// Init is the bubbletea init function.
+// the initial listenScreenUpdate command is started here.
 func (m Model) Init() tea.Cmd {
 	return listenScreenUpdate(m.screenUpdate)
 }
 
+// listenScreenUpdate listens for screen updates from the flipper and returns them as tea.Cmds.
 func listenScreenUpdate(u <-chan ScreenMsg) tea.Cmd {
 	return func() tea.Msg {
 		return <-u
 	}
 }
 
+// Update is the bubbletea update funciton and handles all tea.Msgs.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
@@ -138,6 +165,7 @@ func min(a, b int) int {
 	return b
 }
 
+// mapKey maps a tea.KeyMsg to a flipper.InputKey
 func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
 	switch key.String() {
 	case "w", "up":
@@ -168,6 +196,7 @@ func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
 	return -1, false
 }
 
+// mapMouse maps a tea.MouseMsg to a flipper.InputKey
 func mapMouse(event tea.MouseMsg) flipper.InputKey {
 	switch event.Type {
 	case tea.MouseWheelUp:
@@ -178,6 +207,7 @@ func mapMouse(event tea.MouseMsg) flipper.InputKey {
 	return -1
 }
 
+// sendFlipperEvent sends an event to the flipper. It ensures that at most one event is sent every fzEventCoolDown.
 func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -192,6 +222,7 @@ func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 	m.lastFZEvent = time.Now()
 }
 
+// View renders the flipper screen or an error message if there was an error.
 func (m Model) View() string {
 	if m.err != nil && time.Since(m.errTime) < time.Second*4 {
 		return ErrStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Seconds()), m.err))
@@ -199,6 +230,9 @@ func (m Model) View() string {
 	return m.viewport.View()
 }
 
+// UpdateScreen renders the terminal screen based on the flipper screen.
+// It also returns the flipper screen as an image.
+// This function is intended to be used as a callback for the flipper.
 func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 	return func(frame flipper.ScreenFrame) {
 		var s strings.Builder
@@ -224,15 +258,17 @@ func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 				s.WriteRune('\n')
 			}
 		}
+		// make sure we don't block
 		go func() {
 			updates <- ScreenMsg{
 				screen: s.String(),
-				image:  frame.ToImage(colorWhite, colorOrange),
+				image:  frame.ToImage(colorFg, colorBg),
 			}
 		}()
 	}
 }
 
+// saveImage saves the current screen as a png image.
 func (m *Model) saveImage() {
 	resImg := imaging.Resize(m.currentScreen, m.screenshotResolution.width, m.screenshotResolution.height, imaging.Box)
 
@@ -248,6 +284,7 @@ func (m *Model) saveImage() {
 	}
 }
 
+// setError sets the error message and the time when it occurred.
 func (m *Model) setError(err error) {
 	m.err = err
 	m.errTime = time.Now()

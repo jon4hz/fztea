@@ -8,18 +8,21 @@ import (
 	"github.com/charmbracelet/wish"
 )
 
+// connLimiter limits the number of concurrent connections.
 type connLimiter struct {
 	sync.Mutex
 	conns    int
 	maxConns int
 }
 
+// newConnLimiter returns a new connLimiter.
 func newConnLimiter(maxConns int) *connLimiter {
 	return &connLimiter{
 		maxConns: maxConns,
 	}
 }
 
+// Add adds a connection to the limiter.
 func (u *connLimiter) Add() error {
 	u.Lock()
 	defer u.Unlock()
@@ -30,6 +33,7 @@ func (u *connLimiter) Add() error {
 	return nil
 }
 
+// Remove removes a connection from the limiter.
 func (u *connLimiter) Remove() {
 	u.Lock()
 	defer u.Unlock()
@@ -39,6 +43,8 @@ func (u *connLimiter) Remove() {
 	}
 }
 
+// connLimit is a wish middleware that limits the number of concurrent
+// connections.
 func connLimit(limiter *connLimiter) wish.Middleware {
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {

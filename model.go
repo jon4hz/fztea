@@ -10,10 +10,12 @@ type model struct {
 	width, height int
 }
 
+// Init is the bubbletea init function.
 func (m model) Init() tea.Cmd {
 	return m.flipper.Init()
 }
 
+// Update is the bubbletea update funciton and handles all tea.Msgs.
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -32,6 +34,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// View is the bubbletea view function.
 func (m model) View() string {
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, m.flipper.View())
 }

@@ -13,6 +13,8 @@ import (
 	"go.bug.st/serial/enumerator"
 )
 
+// Connect connects to the flipper zero device.
+// It will indefinitely try to reconnect if the connection is lost.
 func (f *FlipperZero) Connect() error {
 	if err := f.reconnect(); err != nil {
 		return err
@@ -21,6 +23,7 @@ func (f *FlipperZero) Connect() error {
 	return nil
 }
 
+// reconnect starts a new connection to the flipper zero device.
 func (f *FlipperZero) reconnect() error {
 	conn, err := f.newConn()
 	if err != nil {
@@ -38,6 +41,10 @@ func (f *FlipperZero) reconnect() error {
 	return f.startScreenStream()
 }
 
+// newConn opens a new serial connection to the flipper zero device.
+// If the port is not static, it will try to autodetect the flipper zero device.
+// If the connection is already open, it will be closed and a new one will be opened.
+// If the connection is openend successfully, it will start an rpc session over serial.
 func (f *FlipperZero) newConn() (serial.Port, error) {
 	port := f.port
 	if !f.staticPort {
@@ -77,6 +84,7 @@ func (f *FlipperZero) newConn() (serial.Port, error) {
 	return ser, nil
 }
 
+// autodetectFlipper tries to automatically detect the flipper zero device.
 func (f *FlipperZero) autodetectFlipper() (string, error) {
 	ports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
@@ -92,6 +100,8 @@ func (f *FlipperZero) autodetectFlipper() (string, error) {
 	return "", errors.New("no flipper found")
 }
 
+// checkConnLoop checks if the connection is still alive by sending an empty message every 2 seconds.
+// If the connection is lost, it will trigger a reconnect.
 func (f *FlipperZero) checkConnLoop(r io.Writer) {
 	ticker := time.NewTicker(time.Second * 2)
 	defer ticker.Stop()
@@ -116,6 +126,8 @@ func (f *FlipperZero) checkConnLoop(r io.Writer) {
 	}
 }
 
+// reconnLoop tries to reconnect to the flipper zero device if the connection is lost.
+// If a reconnect fails, it will indefinitely try again after 1 second.
 func (f *FlipperZero) reconnLoop() {
 	for {
 		select {
