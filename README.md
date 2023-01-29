@@ -17,13 +17,13 @@ $ yay -S fztea-bin
 
 # local pkg manager
 ## debian / ubuntu
-$ dpkg -i fztea-v0.2.0-linux-amd64.deb
+$ dpkg -i fztea-v0.6.0-linux-amd64.deb
 
 ## rhel / fedora / suse
-$ rpm -i fztea-v0.2.0-linux-amd64.rpm
+$ rpm -i fztea-v0.6.0-linux-amd64.rpm
 
 ## alpine
-$ apk add --allow-untrusted fztea-v0.2.0-linux-amd64.apk
+$ apk add --allow-untrusted fztea-v0.6.0-linux-amd64.apk
 
 # windows & macOS
 # -> I'm sure you'll figure something out. (No binaries for macOS due to crosscompilation errors)
