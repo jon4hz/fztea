@@ -18,6 +18,8 @@ import (
 var rootFlags struct {
 	port                 string
 	screenshotResolution string
+	fgColor              string
+	bgColor              string
 }
 
 var rootCmd = &coral.Command{
@@ -30,6 +32,8 @@ var rootCmd = &coral.Command{
 func init() {
 	rootCmd.Flags().StringVarP(&rootFlags.port, "port", "p", "", "port to connect to")
 	rootCmd.Flags().StringVar(&rootFlags.screenshotResolution, "screenshot-resolution", "1024x512", "screenshot resolution")
+	rootCmd.Flags().StringVar(&rootFlags.fgColor, "fg-color", "#000000", "foreground color")
+	rootCmd.Flags().StringVar(&rootFlags.bgColor, "bg-color", "#FF8C00", "background color")
 
 	rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
 }
@@ -60,7 +64,11 @@ func root(cmd *coral.Command, args []string) {
 		log.Fatal(err)
 	}
 	m := model{
-		flipper: flipperui.New(fz, screenUpdates, flipperui.WithScreenshotResolution(screenshotResolution.width, screenshotResolution.height)),
+		flipper: flipperui.New(fz, screenUpdates,
+			flipperui.WithScreenshotResolution(screenshotResolution.width, screenshotResolution.height),
+			flipperui.WithFgColor(rootFlags.fgColor),
+			flipperui.WithBgColor(rootFlags.bgColor),
+		),
 	}
 	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
 		log.Fatalln(err)

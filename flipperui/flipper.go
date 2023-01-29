@@ -30,10 +30,12 @@ const (
 	// fzEventCoolDown is the time that must pass between two events that are sent to the flipper.
 	// That poor serial connection can handle only so much :(
 	fzEventCoolDown = time.Millisecond * 10
+)
 
-	// some default colors
-	colorBg = lipgloss.Color("#FF8C00")
-	colorFg = lipgloss.Color("#000000")
+var (
+	// colors of the flipper screen
+	colorBg lipgloss.TerminalColor
+	colorFg lipgloss.TerminalColor
 )
 
 type (
@@ -50,8 +52,6 @@ var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 // Model represents the flipper model.
 // It also implements the bubbletea.Model interface.
 type Model struct {
-	// Style is the style of the flipper screen
-	Style lipgloss.Style
 	// viewport is used to handle resizing easily
 	viewport viewport.Model
 	// fz is the flipper zero device
@@ -75,6 +75,12 @@ type Model struct {
 		width  int
 		height int
 	}
+	// Style is the style of the flipper screen
+	Style lipgloss.Style
+	// bgColor is the background color of the flipper screen
+	bgColor string
+	// fgColor is the foreground color of the flipper screen
+	fgColor string
 }
 
 var _ tea.Model = (*Model)(nil)
@@ -82,7 +88,6 @@ var _ tea.Model = (*Model)(nil)
 // New constructs a new flipper model.
 func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOpts) tea.Model {
 	m := Model{
-		Style:        lipgloss.NewStyle().Background(colorBg).Foreground(colorFg),
 		fz:           fz,
 		viewport:     viewport.New(flipperScreenWidth, flipperScreenHeight),
 		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
@@ -95,12 +100,18 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOp
 			width:  1024,
 			height: 512,
 		},
+		bgColor: "#FF8C00",
+		fgColor: "#000000",
 	}
 	m.viewport.MouseWheelEnabled = false
 
 	for _, opt := range opts {
 		opt(&m)
 	}
+
+	colorBg = lipgloss.Color(m.bgColor)
+	colorFg = lipgloss.Color(m.fgColor)
+	m.Style = lipgloss.NewStyle().Background(colorBg).Foreground(colorFg)
 
 	return &m
 }

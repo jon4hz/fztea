@@ -10,3 +10,17 @@ func WithScreenshotResolution(width, height int) FlipperOpts {
 		m.screenshotResolution.height = height
 	}
 }
+
+// WithFgColor sets the foreground color of the flipper screen.
+func WithFgColor(color string) FlipperOpts {
+	return func(m *Model) {
+		m.fgColor = color
+	}
+}
+
+// WithBgColor sets the background color of the flipper screen.
+func WithBgColor(color string) FlipperOpts {
+	return func(m *Model) {
+		m.bgColor = color
+	}
+}

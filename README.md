@@ -79,6 +79,18 @@ $ fztea --screenshot-resolution=1920x1080
 | O               | ok            | long         |
 | B               | back          | long         |
 
+
+## 🌈 Custom colors 
+You can set custom fore- and background colors using the `--bg-color` and `--fg-color` flags.
+```
+$ fztea --bg-color="#8A0000" --fg-color="#000000"
+```
+Results in:
+
+![ColorScreenshot](/.github/assets/custom_colors.png)
+
+
+
 ## 🎬 Demo
 
 
