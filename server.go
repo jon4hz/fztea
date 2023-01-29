@@ -19,7 +19,6 @@ import (
 )
 
 var serverFlags struct {
-	port           string
 	listen         string
 	authorizedKeys string
 }
@@ -31,15 +30,20 @@ var serverCmd = &coral.Command{
 }
 
 func init() {
-	serverCmd.Flags().StringVarP(&serverFlags.port, "port", "p", "", "port to connect to")
 	serverCmd.Flags().StringVarP(&serverFlags.listen, "listen", "l", "127.0.0.1:2222", "address to listen on")
 	serverCmd.Flags().StringVarP(&serverFlags.authorizedKeys, "authorized-keys", "k", "", "authorized_keys file for public key authentication")
 }
 
 func server(cmd *coral.Command, args []string) {
+	// parse screenshot resolution
+	screenshotResolution, err := parseScreenshotResolution()
+	if err != nil {
+		log.Fatalf("failed to parse screenshot resolution: %s", err)
+	}
+
 	screenUpdates := make(chan flipperui.ScreenMsg)
 	fz, err := recfz.NewFlipperZero(
-		recfz.WithPort(serverFlags.port),
+		recfz.WithPort(rootFlags.port),
 		recfz.WithStreamScreenCallback(flipperui.UpdateScreen(screenUpdates)),
 		recfz.WithContext(cmd.Context()),
 	)
@@ -64,7 +68,10 @@ func server(cmd *coral.Command, args []string) {
 					return nil, nil
 				}
 				m := model{
-					flipper: flipperui.New(fz, screenUpdates),
+					flipper: flipperui.New(fz, screenUpdates,
+						flipperui.WithScreenshotResolution(screenshotResolution.width, screenshotResolution.height),
+						flipperui.WithFgColor(rootFlags.fgColor),
+						flipperui.WithBgColor(rootFlags.bgColor)),
 				}
 				return m, []tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 			}),

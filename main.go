@@ -30,22 +30,19 @@ var rootCmd = &coral.Command{
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&rootFlags.port, "port", "p", "", "port to connect to")
-	rootCmd.Flags().StringVar(&rootFlags.screenshotResolution, "screenshot-resolution", "1024x512", "screenshot resolution")
-	rootCmd.Flags().StringVar(&rootFlags.fgColor, "fg-color", "#000000", "foreground color")
-	rootCmd.Flags().StringVar(&rootFlags.bgColor, "bg-color", "#FF8C00", "background color")
+	rootCmd.PersistentFlags().StringVarP(&rootFlags.port, "port", "p", "", "serial port to connect to (default: auto-detected)")
+	rootCmd.PersistentFlags().StringVar(&rootFlags.screenshotResolution, "screenshot-resolution", "1024x512", "screenshot resolution")
+	rootCmd.PersistentFlags().StringVar(&rootFlags.fgColor, "fg-color", "#000000", "foreground color")
+	rootCmd.PersistentFlags().StringVar(&rootFlags.bgColor, "bg-color", "#FF8C00", "background color")
 
 	rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
 }
 
 func root(cmd *coral.Command, args []string) {
 	// parse screenshot resolution
-	var screenshotResolution struct {
-		width  int
-		height int
-	}
-	if _, err := fmt.Sscanf(rootFlags.screenshotResolution, "%dx%d", &screenshotResolution.width, &screenshotResolution.height); err != nil {
-		log.Fatalf("Failed to parse screenshot resolution: %s", err)
+	screenshotResolution, err := parseScreenshotResolution()
+	if err != nil {
+		log.Fatalf("failed to parse screenshot resolution: %s", err)
 	}
 
 	screenUpdates := make(chan flipperui.ScreenMsg)
@@ -108,4 +105,16 @@ var versionCmd = &coral.Command{
 		fmt.Printf("Date: %s\n", version.Date)
 		fmt.Printf("Build by: %s\n", version.BuiltBy)
 	},
+}
+
+func parseScreenshotResolution() (struct {
+	width  int
+	height int
+}, error) {
+	var screenshotResolution struct {
+		width  int
+		height int
+	}
+	_, err := fmt.Sscanf(rootFlags.screenshotResolution, "%dx%d", &screenshotResolution.width, &screenshotResolution.height)
+	return screenshotResolution, err
 }

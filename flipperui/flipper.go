@@ -34,8 +34,8 @@ const (
 
 var (
 	// colors of the flipper screen
-	colorBg lipgloss.TerminalColor
-	colorFg lipgloss.TerminalColor
+	colorBg = lipgloss.Color("#FF8C00")
+	colorFg = lipgloss.Color("#000000")
 )
 
 type (
@@ -111,6 +111,7 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOp
 
 	colorBg = lipgloss.Color(m.bgColor)
 	colorFg = lipgloss.Color(m.fgColor)
+
 	m.Style = lipgloss.NewStyle().Background(colorBg).Foreground(colorFg)
 
 	return &m
