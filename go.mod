@@ -3,7 +3,7 @@ module github.com/jon4hz/fztea
 go 1.18
 
 require (
-	github.com/charmbracelet/bubbles v0.14.0
+	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/charmbracelet/ssh v0.0.0-20221117183211-483d43d97103
