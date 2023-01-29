@@ -16,7 +16,8 @@ import (
 )
 
 var rootFlags struct {
-	port string
+	port                 string
+	screenshotResolution string
 }
 
 var rootCmd = &coral.Command{
@@ -28,10 +29,21 @@ var rootCmd = &coral.Command{
 
 func init() {
 	rootCmd.Flags().StringVarP(&rootFlags.port, "port", "p", "", "port to connect to")
+	rootCmd.Flags().StringVar(&rootFlags.screenshotResolution, "screenshot-resolution", "1024x512", "screenshot resolution")
+
 	rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
 }
 
 func root(cmd *coral.Command, args []string) {
+	// parse screenshot resolution
+	var screenshotResolution struct {
+		width  int
+		height int
+	}
+	if _, err := fmt.Sscanf(rootFlags.screenshotResolution, "%dx%d", &screenshotResolution.width, &screenshotResolution.height); err != nil {
+		log.Fatalf("Failed to parse screenshot resolution: %s", err)
+	}
+
 	screenUpdates := make(chan flipperui.ScreenMsg)
 	fz, err := recfz.NewFlipperZero(
 		recfz.WithContext(cmd.Context()),
@@ -48,7 +60,7 @@ func root(cmd *coral.Command, args []string) {
 		log.Fatal(err)
 	}
 	m := model{
-		flipper: flipperui.New(fz, screenUpdates),
+		flipper: flipperui.New(fz, screenUpdates, flipperui.WithScreenshotResolution(screenshotResolution.width, screenshotResolution.height)),
 	}
 	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
 		log.Fatalln(err)

@@ -41,19 +41,23 @@ type (
 var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
 type Model struct {
-	Style         lipgloss.Style
-	viewport      viewport.Model
-	fz            *recfz.FlipperZero
-	err           error
-	errTime       time.Time
-	content       string
-	lastFZEvent   time.Time
-	screenUpdate  <-chan ScreenMsg
-	currentScreen image.Image
-	mu            *sync.Mutex
+	Style                lipgloss.Style
+	viewport             viewport.Model
+	fz                   *recfz.FlipperZero
+	err                  error
+	errTime              time.Time
+	content              string
+	lastFZEvent          time.Time
+	screenUpdate         <-chan ScreenMsg
+	currentScreen        image.Image
+	mu                   *sync.Mutex
+	screenshotResolution struct {
+		width  int
+		height int
+	}
 }
 
-func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg) tea.Model {
+func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOpts) tea.Model {
 	m := &Model{
 		Style:        lipgloss.NewStyle().Background(colorOrange).Foreground(colorWhite),
 		fz:           fz,
@@ -61,8 +65,19 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg) tea.Model {
 		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
 		screenUpdate: screenUpdate,
 		mu:           &sync.Mutex{},
+		screenshotResolution: struct {
+			width  int
+			height int
+		}{
+			width:  1024,
+			height: 512,
+		},
 	}
 	m.viewport.MouseWheelEnabled = false
+
+	for _, opt := range opts {
+		opt(m)
+	}
 
 	return m
 }
@@ -219,7 +234,7 @@ func UpdateScreen(updates chan<- ScreenMsg) func(frame flipper.ScreenFrame) {
 }
 
 func (m *Model) saveImage() {
-	resImg := imaging.Resize(m.currentScreen, 1024, 512, imaging.Box)
+	resImg := imaging.Resize(m.currentScreen, m.screenshotResolution.width, m.screenshotResolution.height, imaging.Box)
 
 	out, err := os.Create(fmt.Sprintf("flipper_%s.png", time.Now().Format("20060102150405")))
 	if err != nil {

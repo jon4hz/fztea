@@ -57,8 +57,11 @@ $ fztea server -l 127.0.0.1:2222 -k ~/.ssh/authorized_keys
 ```
 
 ## 📸 Screenshots
-You can take a screenshot of the flipper using `ctrl+s` at any time. `Fztea` will store the screenshot in the working directoy in a 1024x512px resolution.
-
+You can take a screenshot of the flipper using `ctrl+s` at any time. `Fztea` will store the screenshot in the working directoy, by default in a 1024x512px resolution.  
+The size of the screenshot can be customized using the `--screenshot-resolution` flag. 
+```
+$ fztea --screenshot-resolution=1920x1080
+```
 
 ## ⌨️ Button Mapping
 | Key             | Flipper Event | Keypress Type
