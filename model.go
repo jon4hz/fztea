@@ -15,7 +15,7 @@ func (m model) Init() tea.Cmd {
 	return m.flipper.Init()
 }
 
-// Update is the bubbletea update funciton and handles all tea.Msgs.
+// Update is the bubbletea update function and handles all tea.Msgs.
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

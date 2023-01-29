@@ -130,7 +130,7 @@ func listenScreenUpdate(u <-chan ScreenMsg) tea.Cmd {
 	}
 }
 
-// Update is the bubbletea update funciton and handles all tea.Msgs.
+// Update is the bubbletea update function and handles all tea.Msgs.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 

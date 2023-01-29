@@ -19,6 +19,7 @@ const (
 // Opts represents an optional configuration for the flipper zero.
 type Opts func(f *FlipperZero)
 
+// WithPort sets the port of the flipper zero.
 func WithPort(port string) Opts {
 	return func(f *FlipperZero) {
 		f.port = port
