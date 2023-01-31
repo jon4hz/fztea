@@ -56,6 +56,7 @@ builds:
 
 archives:
   - 
+    rlcp: true
     name_template: "{{ .Var.binary_name }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}-{{ .Mips }}{{ end }}"
     builds:
       - default
@@ -99,6 +100,7 @@ aurs:
 
 
 source:
+  rlcp: true
   enabled: true
 
 snapshot:
