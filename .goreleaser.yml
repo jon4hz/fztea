@@ -53,6 +53,20 @@ builds:
         goarch: arm64
       - goos: windows
         goarm: "7"
+  -
+    id: macOS
+    env:
+      - CGO_ENABLED=1 # required for the serial lib of fztea
+    main: '{{ .Var.main }}'
+    binary: '{{ .Var.binary_name }}'
+    ldflags: -s -w -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Version={{ .Version }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Commit={{ .Commit }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Date={{ .Date }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.BuiltBy=goreleaser
+    flags:
+      - -trimpath
+    goos:
+      - darwin
+    ignore:
+      - goos: darwin
+        goarch: "386"
 
 archives:
   - 
@@ -60,6 +74,7 @@ archives:
     name_template: "{{ .Var.binary_name }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}-{{ .Mips }}{{ end }}"
     builds:
       - default
+      - macOS
     format_overrides:
       - goos: windows
         format: zip
@@ -85,6 +100,15 @@ nfpms:
       - apk
       - deb
       - rpm
+    contents:
+      - src: ./completions/fztea.bash
+        dst: /etc/bash_completion.d/fztea
+      - src: ./completions/fztea.fish
+        dst: /usr/share/fish/vendor_completions.d/fztea.fish
+      - src: ./completions/fztea.zsh
+        dst: /usr/share/zsh/site-functions/_fztea
+      - src: ./manpages/fztea.1.gz
+        dst: /usr/share/man/man1/fztea.1.gz
 
 aurs:
   -
