@@ -108,3 +108,4 @@ jobs:
           GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           FURY_TOKEN: ${{ secrets.FURY_TOKEN }}
           AUR_KEY: ${{ secrets.AUR_KEY }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

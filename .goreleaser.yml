@@ -177,3 +177,19 @@ changelog:
 
 furies:
   - account: jon4hz
+
+brews:
+  - 
+    name: '{{ .Var.binary_name }}'
+    ids:
+      - default
+    tap:
+      owner: jon4hz
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: jon4hz
+      email: me@jon4hz.io
+    homepage: '{{ .Var.homepage }}'
+    description: '{{ .Var.description }}'
+      
