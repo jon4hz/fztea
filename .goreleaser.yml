@@ -87,6 +87,7 @@ builds:
 
 archives:
   - 
+    id: default
     rlcp: true
     name_template: "{{ .Var.binary_name }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}-{{ .Mips }}{{ end }}"
     builds:
@@ -99,6 +100,7 @@ archives:
       - manpages/
       - completions
   - 
+    id: windows
     rlcp: true
     name_template: "{{ .Var.binary_name }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}-{{ .Mips }}{{ end }}"
     builds:
