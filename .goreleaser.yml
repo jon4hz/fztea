@@ -40,6 +40,23 @@ builds:
       - -trimpath
     goos:
       - linux
+    goarch:
+      - amd64
+      - arm64
+      - "386"
+      - arm
+    goarm:
+      - "7"
+  - 
+    id: windows
+    env:
+      - CGO_ENABLED=0
+    main: '{{ .Var.main }}'
+    binary: '{{ .Var.binary_name }}'
+    ldflags: -s -w -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Version={{ .Version }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Commit={{ .Commit }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.Date={{ .Date }} -X github.com/jon4hz/{{ .Var.binary_name }}/internal/version.BuiltBy=goreleaser
+    flags:
+      - -trimpath
+    goos:
       - windows
     goarch:
       - amd64
@@ -75,6 +92,17 @@ archives:
     builds:
       - default
       - macOS
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+      - manpages/
+      - completions
+  - 
+    rlcp: true
+    name_template: "{{ .Var.binary_name }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}-{{ .Mips }}{{ end }}"
+    builds:
+      - windows
     format_overrides:
       - goos: windows
         format: zip
@@ -82,8 +110,6 @@ archives:
       - LICENSE*
       - README*
       - CHANGELOG*
-      - manpages/
-      - completions
 
 checksum:
   name_template: 'checksums.txt'
