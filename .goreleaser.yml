@@ -181,8 +181,6 @@ furies:
 brews:
   - 
     name: '{{ .Var.binary_name }}'
-    ids:
-      - default
     tap:
       owner: jon4hz
       name: homebrew-tap
