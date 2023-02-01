@@ -181,8 +181,6 @@ furies:
 brews:
   - 
     name: '{{ .Var.binary_name }}'
-    ids:
-      - default
     tap:
       owner: jon4hz
       name: homebrew-tap
@@ -192,4 +190,10 @@ brews:
       email: me@jon4hz.io
     homepage: '{{ .Var.homepage }}'
     description: '{{ .Var.description }}'
+    install: |-
+      bin.install "{{ .Var.binary_name }}"
+      bash_completion.install "completions/{{ .Var.binary_name }}.bash" => "{{ .Var.binary_name }}"
+      zsh_completion.install "completions/{{ .Var.binary_name }}.zsh" => "_{{ .Var.binary_name }}"
+      fish_completion.install "completions/{{ .Var.binary_name }}.fish"
+      man1.install "manpages/{{ .Var.binary_name }}.1.gz"
       
