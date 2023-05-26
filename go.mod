@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/charmbracelet/bubbles v0.15.0
-	github.com/charmbracelet/bubbletea v0.23.2
+	github.com/charmbracelet/bubbletea v0.24.0
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/charmbracelet/ssh v0.0.0-20221117183211-483d43d97103
 	github.com/charmbracelet/wish v1.1.0
@@ -22,12 +22,12 @@ require (
 	github.com/caarlos0/sshmarshal v0.1.0 // indirect
 	github.com/charmbracelet/keygen v0.3.0 // indirect
 	github.com/charmbracelet/log v0.1.2 // indirect
-	github.com/containerd/console v1.0.3 // indirect
+	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
