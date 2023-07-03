@@ -96,6 +96,8 @@ Results in:
 
 ## 🎬 Demo
 
-
+### Local
+![LocalDemo](/.github/assets/demo.gif)
+### SSH
 https://user-images.githubusercontent.com/26183582/181772189-13d7aeaa-ac26-4701-8104-a71ed218539c.mp4
 
