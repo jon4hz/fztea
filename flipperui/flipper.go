@@ -150,7 +150,7 @@ func (m Model) Update(ctx tea.Context, msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-	case tea.MouseMsg:
+	case tea.MouseWheelMsg:
 		event := mapMouse(msg)
 		if event != -1 {
 			m.sendFlipperEvent(event, false)
@@ -203,7 +203,7 @@ func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
 }
 
 // mapMouse maps a tea.MouseMsg to a flipper.InputKey
-func mapMouse(event tea.MouseMsg) flipper.InputKey {
+func mapMouse(event tea.MouseWheelMsg) flipper.InputKey {
 	switch event.Button {
 	case tea.MouseWheelUp:
 		return flipper.InputKeyUp
