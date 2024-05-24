@@ -68,7 +68,7 @@ func root(cmd *coral.Command, args []string) {
 			flipperui.WithBgColor(rootFlags.bgColor),
 		),
 	}
-	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
+	if _, err := tea.NewProgram(m, tea.WithMouseCellMotion()).Run(); err != nil {
 		log.Fatalln(err)
 	}
 }
