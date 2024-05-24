@@ -112,7 +112,6 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOp
 // Init is the bubbletea init function.
 // the initial listenScreenUpdate command is started here.
 func (m Model) Init(ctx tea.Context) (tea.Model, tea.Cmd) {
-
 	colorBg = lipgloss.Color(m.bgColor)
 	colorFg = lipgloss.Color(m.fgColor)
 	m.style = ctx.NewStyle().Background(colorBg).Foreground(colorFg)
