@@ -46,9 +46,6 @@ type (
 	}
 )
 
-// ErrStyle is the style of the error message
-var ErrStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
-
 // Model represents the flipper model.
 // It also implements the bubbletea.Model interface.
 type Model struct {
@@ -76,20 +73,21 @@ type Model struct {
 		height int
 	}
 	// Style is the style of the flipper screen
-	Style lipgloss.Style
+	style lipgloss.Style
 	// bgColor is the background color of the flipper screen
 	bgColor string
 	// fgColor is the foreground color of the flipper screen
 	fgColor string
+	// ErrStyle is the style of the error message
+	errStyle lipgloss.Style
 }
 
 var _ tea.Model = (*Model)(nil)
 
 // New constructs a new flipper model.
-func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOpts) tea.Model {
+func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOpts) *Model {
 	m := Model{
 		fz:           fz,
-		viewport:     viewport.New(flipperScreenWidth, flipperScreenHeight),
 		lastFZEvent:  time.Now().Add(-fzEventCoolDown),
 		screenUpdate: screenUpdate,
 		mu:           &sync.Mutex{},
@@ -103,24 +101,27 @@ func New(fz *recfz.FlipperZero, screenUpdate <-chan ScreenMsg, opts ...FlipperOp
 		bgColor: "#FF8C00",
 		fgColor: "#000000",
 	}
-	m.viewport.MouseWheelEnabled = false
 
 	for _, opt := range opts {
 		opt(&m)
 	}
-
-	colorBg = lipgloss.Color(m.bgColor)
-	colorFg = lipgloss.Color(m.fgColor)
-
-	m.Style = lipgloss.NewStyle().Background(colorBg).Foreground(colorFg)
 
 	return &m
 }
 
 // Init is the bubbletea init function.
 // the initial listenScreenUpdate command is started here.
-func (m Model) Init() tea.Cmd {
-	return listenScreenUpdate(m.screenUpdate)
+func (m Model) Init(ctx tea.Context) (tea.Model, tea.Cmd) {
+
+	colorBg = lipgloss.Color(m.bgColor)
+	colorFg = lipgloss.Color(m.fgColor)
+	m.style = ctx.NewStyle().Background(colorBg).Foreground(colorFg)
+	m.errStyle = ctx.NewStyle().Foreground(lipgloss.Color("#FF0000"))
+
+	m.viewport = viewport.New(ctx, flipperScreenWidth, flipperScreenHeight)
+	m.viewport.MouseWheelEnabled = false
+
+	return m, listenScreenUpdate(m.screenUpdate)
 }
 
 // listenScreenUpdate listens for screen updates from the flipper and returns them as tea.Cmds.
@@ -131,15 +132,15 @@ func listenScreenUpdate(u <-chan ScreenMsg) tea.Cmd {
 }
 
 // Update is the bubbletea update function and handles all tea.Msgs.
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(ctx tea.Context, msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
+		switch msg.String() {
+		case "ctrl+c":
 			return nil, tea.Quit
-		case tea.KeyCtrlS:
+		case "ctrl+s":
 			m.saveImage()
 			return m, nil
 		default:
@@ -158,23 +159,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.viewport.Width = min(msg.Width, flipperScreenWidth)
 		m.viewport.Height = min(msg.Height, flipperScreenHeight)
-		m.viewport.SetContent(m.Style.Render(m.content))
+		m.viewport.SetContent(m.style.Render(m.content))
 
 	case ScreenMsg:
 		m.content = msg.screen
 		m.currentScreen = msg.image
-		m.viewport.SetContent(m.Style.Render(m.content))
+		m.viewport.SetContent(m.style.Render(m.content))
 		cmds = append(cmds, listenScreenUpdate(m.screenUpdate))
 	}
 
 	return m, tea.Batch(cmds...)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // mapKey maps a tea.KeyMsg to a flipper.InputKey
@@ -210,7 +204,7 @@ func mapKey(key tea.KeyMsg) (flipper.InputKey, bool) {
 
 // mapMouse maps a tea.MouseMsg to a flipper.InputKey
 func mapMouse(event tea.MouseMsg) flipper.InputKey {
-	switch event.Type {
+	switch event.Button {
 	case tea.MouseWheelUp:
 		return flipper.InputKeyUp
 	case tea.MouseWheelDown:
@@ -235,11 +229,11 @@ func (m *Model) sendFlipperEvent(event flipper.InputKey, isLong bool) {
 }
 
 // View renders the flipper screen or an error message if there was an error.
-func (m Model) View() string {
+func (m Model) View(ctx tea.Context) string {
 	if m.err != nil && time.Since(m.errTime) < time.Second*4 {
-		return ErrStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Seconds()), m.err))
+		return m.errStyle.Render(fmt.Sprintf("%d %s", int((time.Second*4 - time.Since(m.errTime)).Seconds()), m.err))
 	}
-	return m.viewport.View()
+	return m.viewport.View(ctx)
 }
 
 // UpdateScreen renders the terminal screen based on the flipper screen.

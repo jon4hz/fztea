@@ -35,7 +35,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&rootFlags.fgColor, "fg-color", "#000000", "foreground color")
 	rootCmd.PersistentFlags().StringVar(&rootFlags.bgColor, "bg-color", "#FF8C00", "background color")
 
-	rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
+	//rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
+	rootCmd.AddCommand(versionCmd, manCmd)
 }
 
 func root(cmd *coral.Command, args []string) {

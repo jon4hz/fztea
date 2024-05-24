@@ -1,23 +1,6 @@
 package main
 
-import (
-	"context"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/ssh"
-	"github.com/charmbracelet/wish"
-	bm "github.com/charmbracelet/wish/bubbletea"
-	lm "github.com/charmbracelet/wish/logging"
-	"github.com/jon4hz/fztea/flipperui"
-	"github.com/jon4hz/fztea/recfz"
-	"github.com/muesli/coral"
-)
-
+/*
 var serverFlags struct {
 	listen         string
 	authorizedKeys string
@@ -108,3 +91,4 @@ func server(cmd *coral.Command, args []string) {
 		log.Fatalln(err)
 	}
 }
+*/
