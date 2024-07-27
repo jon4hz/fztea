@@ -38,7 +38,7 @@ func init() {
 	rootCmd.AddCommand(serverCmd, versionCmd, manCmd)
 }
 
-func root(cmd *coral.Command, args []string) {
+func root(cmd *coral.Command, _ []string) {
 	// parse screenshot resolution
 	screenshotResolution, err := parseScreenshotResolution()
 	if err != nil {
@@ -67,7 +67,7 @@ func root(cmd *coral.Command, args []string) {
 			flipperui.WithBgColor(rootFlags.bgColor),
 		),
 	}
-	if err := tea.NewProgram(m, tea.WithMouseCellMotion()).Start(); err != nil {
+	if _, err := tea.NewProgram(m, tea.WithMouseCellMotion()).Run(); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -85,7 +85,7 @@ var manCmd = &coral.Command{
 	DisableFlagsInUseLine: true,
 	Hidden:                true,
 	Args:                  coral.NoArgs,
-	RunE: func(cmd *coral.Command, args []string) error {
+	RunE: func(_ *coral.Command, _ []string) error {
 		manPage, err := mcoral.NewManPage(1, rootCmd)
 		if err != nil {
 			return err
@@ -99,7 +99,7 @@ var manCmd = &coral.Command{
 var versionCmd = &coral.Command{
 	Use:   "version",
 	Short: "Print the version info",
-	Run: func(cmd *coral.Command, args []string) {
+	Run: func(_ *coral.Command, _ []string) {
 		fmt.Printf("Version: %s\n", version.Version)
 		fmt.Printf("Commit: %s\n", version.Commit)
 		fmt.Printf("Date: %s\n", version.Date)

@@ -34,7 +34,7 @@ func init() {
 	serverCmd.Flags().StringVarP(&serverFlags.authorizedKeys, "authorized-keys", "k", "", "authorized_keys file for public key authentication")
 }
 
-func server(cmd *coral.Command, args []string) {
+func server(cmd *coral.Command, _ []string) {
 	// parse screenshot resolution
 	screenshotResolution, err := parseScreenshotResolution()
 	if err != nil {
