@@ -1,6 +1,6 @@
 module github.com/jon4hz/fztea
 
-go 1.18
+go 1.22
 
 require (
 	github.com/charmbracelet/bubbles v0.19.0
