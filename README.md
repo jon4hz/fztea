@@ -1,4 +1,4 @@
-# 🐬🧋 Fztea (flipperzero-tea)
+# 🐬🧋 Fztea
 [![lint](https://github.com/jon4hz/fztea/actions/workflows/lint.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/lint.yml)
 [![goreleaser](https://github.com/jon4hz/fztea/actions/workflows/release.yml/badge.svg)](https://github.com/jon4hz/fztea/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jon4hz/fztea)](https://goreportcard.com/report/github.com/jon4hz/fztea)
