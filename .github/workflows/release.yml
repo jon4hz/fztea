@@ -31,17 +31,17 @@ jobs:
       - shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.os == 'ubuntu-latest'
         with:
           path: dist/linux
           key: linux-${{ env.sha_short }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.os == 'macos-latest'
         with:
           path: dist/darwin
           key: darwin-${{ env.sha_short }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.os == 'windows-latest'
         with:
           path: dist/windows
@@ -81,15 +81,15 @@ jobs:
       - shell: bash
         run: |
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: dist/linux
           key: linux-${{ env.sha_short }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: dist/darwin
           key: darwin-${{ env.sha_short }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: dist/windows
           key: windows-${{ env.sha_short }}
