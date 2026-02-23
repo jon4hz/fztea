@@ -53,7 +53,7 @@ jobs:
       - if: matrix.os == 'windows-latest'
         shell: bash
         run: echo "flags=--skip=before" >> $GITHUB_ENV # skip before hooks on windows (shell scripts for manpages and completions)
-      - uses: goreleaser/goreleaser-action@v6
+      - uses: goreleaser/goreleaser-action@v7
         if: steps.cache.outputs.cache-hit != 'true' # do not run if cache hit
         with:
           distribution: goreleaser-pro
@@ -96,7 +96,7 @@ jobs:
           enableCrossOsArchive: true
 
       # release
-      - uses: goreleaser/goreleaser-action@v6
+      - uses: goreleaser/goreleaser-action@v7
         if: steps.cache.outputs.cache-hit != 'true' # do not run if cache hit
         with:
           version: latest
